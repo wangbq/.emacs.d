@@ -38,7 +38,7 @@
 (load-theme 'tomorrow-night-eighties t)
 
 ;; Flyspell often slows down editing so it's turned off
-(remove-hook 'text-mode-hook 'turn-on-flyspell)
+;; (remove-hook 'text-mode-hook 'turn-on-flyspell)
 
 ;; Clojure
 (add-to-list 'auto-mode-alist '("\\.edn$" . clojure-mode))
