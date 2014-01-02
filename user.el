@@ -1,10 +1,22 @@
 ;; This is where your customizations should live
 
+;; Use command as control
+(setq mac-command-modifier 'control)
+(setq default-directory "~/")
+
 ;; env PATH
+;;(defun set-exec-path-from-shell-PATH ()
+;;(let ((path-from-shell (shell-command-to-string "$SHELL -i -c 'echo $PATH'")
+;;                       ))
+  ;;    (setenv "PATH" path-from-shell)
+;;  (setq exec-path (split-string path-from-shell path-separator))
+;;))
+
 (defun set-exec-path-from-shell-PATH ()
-  (let ((path-from-shell (shell-command-to-string "$SHELL -i -c 'echo $PATH'")))
+  (let ((path-from-shell (replace-regexp-in-string "[ \t\n]*$" "" (shell-command-to-string "$SHELL --login -i -c 'echo $PATH'"))))
     (setenv "PATH" path-from-shell)
     (setq exec-path (split-string path-from-shell path-separator))))
+(set-exec-path-from-shell-PATH)
 
 ;; Uncomment the lines below by removing semicolons and play with the
 ;; values in order to set the width (in characters wide) and height
@@ -35,7 +47,7 @@
 (add-to-list 'load-path "~/.emacs.d/themes")
 ;; Uncomment this to increase font size
 (set-face-attribute 'default nil :height 140)
-(load-theme 'tomorrow-night-eighties t)
+;;(load-theme 'tomorrow-night-eighties t)
 
 ;; Flyspell often slows down editing so it's turned off
 ;; (remove-hook 'text-mode-hook 'turn-on-flyspell)
@@ -65,5 +77,28 @@
 (setq backup-directory-alist `(("." . "~/.saves")))
 
 (setq ring-bell-function 'ignore)
+
+(load "auctex-pkg.el" nil t t)
+(add-hook 'LaTeX-mode-hook 'TeX-source-correlate-mode)
+
+(setq TeX-source-correlate-method 'synctex)
+
+(add-hook 'LaTeX-mode-hook
+          (lambda()
+            (add-to-list 'TeX-expand-list
+                         '("%q" skim-make-url))))
+
+(defun skim-make-url () (concat
+                         (TeX-current-line)
+                         " "
+                         (expand-file-name (funcall file (TeX-output-extension) t)
+                                           (file-name-directory (TeX-master-file)))
+                         " "
+                         (buffer-file-name)))
+
+(setq TeX-view-program-list
+      '(("Skim" "/Applications/Skim.app/Contents/SharedSupport/displayline %q")))
+
+(setq TeX-view-program-selection '((output-pdf "Skim")))
 
 (server-start)
