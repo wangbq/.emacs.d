@@ -3,26 +3,22 @@
 ;; Use command as control
 (setq mac-command-modifier 'control)
 (setq default-directory "~/")
+;;(setq tab-width 4)
+(setq-default tab-width 4)
 
 ;; env PATH
-;;(defun set-exec-path-from-shell-PATH ()
-;;(let ((path-from-shell (shell-command-to-string "$SHELL -i -c 'echo $PATH'")
-;;                       ))
-  ;;    (setenv "PATH" path-from-shell)
-;;  (setq exec-path (split-string path-from-shell path-separator))
-;;))
-
 (defun set-exec-path-from-shell-PATH ()
   (let ((path-from-shell (replace-regexp-in-string "[ \t\n]*$" "" (shell-command-to-string "$SHELL --login -i -c 'echo $PATH'"))))
     (setenv "PATH" path-from-shell)
     (setq exec-path (split-string path-from-shell path-separator))))
+
 (set-exec-path-from-shell-PATH)
 
 ;; Uncomment the lines below by removing semicolons and play with the
 ;; values in order to set the width (in characters wide) and height
 ;; (in lines high) Emacs will have whenever you start it
 
-(setq initial-frame-alist '((top . 0) (left . 0) (width . 100) (height . 35)))
+(setq initial-frame-alist '((top . 0) (left . 0) (width . 120) (height . 39)))
 
 
 ;; Place downloaded elisp files in this directory. You'll then be able
@@ -42,30 +38,35 @@
 (setq-default sh-basic-offset 2)
 (setq-default sh-indentation 2)
 
+;; set indent for c/c++
+(setq-default c-basic-offset 4)
+
 ;; Themes
 (add-to-list 'custom-theme-load-path "~/.emacs.d/themes")
+(add-to-list 'custom-theme-load-path "~/.emacs.d/emacs-color-theme-solarized")
 (add-to-list 'load-path "~/.emacs.d/themes")
+;;(load-theme 'solarized-dark t)
+
 ;; Uncomment this to increase font size
 (set-face-attribute 'default nil :height 140)
-;;(load-theme 'tomorrow-night-eighties t)
 
 ;; Flyspell often slows down editing so it's turned off
 ;; (remove-hook 'text-mode-hook 'turn-on-flyspell)
 
 ;; Clojure
-(add-to-list 'auto-mode-alist '("\\.edn$" . clojure-mode))
-(setq nrepl-history-file "~/.emacs.d/nrepl-history")
-(setq nrepl-popup-stacktraces t)
-(setq nrepl-popup-stacktraces-in-repl t)
-(add-hook 'nrepl-connected-hook
-          (defun pnh-clojure-mode-eldoc-hook ()
-            (add-hook 'clojure-mode-hook 'turn-on-eldoc-mode)
-            (add-hook 'nrepl-interaction-mode-hook 'nrepl-turn-on-eldoc-mode)
-            (nrepl-enable-on-existing-clojure-buffers)))
-(add-hook 'nrepl-mode-hook 'subword-mode)
-(eval-after-load "auto-complete"
-  '(add-to-list 'ac-modes 'nrepl-mode))
-(add-hook 'nrepl-mode-hook 'ac-nrepl-setup)
+;; (add-to-list 'auto-mode-alist '("\\.edn$" . clojure-mode))
+;; (setq nrepl-history-file "~/.emacs.d/nrepl-history")
+;; (setq nrepl-popup-stacktraces t)
+;; (setq nrepl-popup-stacktraces-in-repl t)
+;; (add-hook 'nrepl-connected-hook
+;;           (defun pnh-clojure-mode-eldoc-hook ()
+;;             (add-hook 'clojure-mode-hook 'turn-on-eldoc-mode)
+;;             (add-hook 'nrepl-interaction-mode-hook 'nrepl-turn-on-eldoc-mode)
+;;             (nrepl-enable-on-existing-clojure-buffers)))
+;; (add-hook 'nrepl-mode-hook 'subword-mode)
+;; (eval-after-load "auto-complete"
+;;   '(add-to-list 'ac-modes 'nrepl-mode))
+;; (add-hook 'nrepl-mode-hook 'ac-nrepl-setup)
 
 ;; hippie expand - don't try to complete with file names
 (setq hippie-expand-try-functions-list (delete 'try-complete-file-name hippie-expand-try-functions-list))
@@ -78,11 +79,10 @@
 
 (setq ring-bell-function 'ignore)
 
+;; Auctex config
 (load "auctex-pkg.el" nil t t)
 (add-hook 'LaTeX-mode-hook 'TeX-source-correlate-mode)
-
 (setq TeX-source-correlate-method 'synctex)
-
 (add-hook 'LaTeX-mode-hook
           (lambda()
             (add-to-list 'TeX-expand-list
@@ -102,3 +102,32 @@
 (setq TeX-view-program-selection '((output-pdf "Skim")))
 
 (server-start)
+
+;; octave mode
+(autoload 'octave-mode "octave-mod" nil t)
+(setq auto-mode-alist
+      (cons '("\\.m$" . octave-mode) auto-mode-alist))
+
+;; copy one line with C-c C-k
+(defun copy-line (arg)
+  "Copy lines (as many as prefix argument) in the kill ring.
+      Ease of use features:
+      - Move to start of next line.
+      - Appends the copy on sequential calls.
+      - Use newline as last char even on the last line of the buffer.
+      - If region is active, copy its lines."
+  (interactive "p")
+  (let ((beg (line-beginning-position))
+        (end (line-end-position arg)))
+    (when mark-active
+      (if (> (point) (mark))
+          (setq beg (save-excursion (goto-char (mark)) (line-beginning-position)))
+        (setq end (save-excursion (goto-char (mark)) (line-end-position)))))
+    (if (eq last-command 'copy-line)
+        (kill-append (buffer-substring beg end) (< end beg))
+      (kill-ring-save beg end)))
+  (kill-append "\n" nil)
+  (beginning-of-line (or (and arg (1+ arg)) 2))
+  (if (and arg (not (= 1 arg))) (message "%d lines copied" arg)))
+(global-set-key "\C-c\C-k" 'copy-line)
+
