@@ -141,3 +141,8 @@
 (global-set-key "\C-cc" 'org-capture)
 (global-set-key "\C-ca" 'org-agenda)
 (global-set-key "\C-cb" 'org-iswitchb)
+
+(require 'root-help)
+(setenv "ROOTSYS" "/Users/wangbq/src/root_v5.34.36.macosx64-10.11-clang70")
+(setq root-executable (concat (getenv "ROOTSYS") "/bin/root"))
+(setq root-executable-args "-l")
