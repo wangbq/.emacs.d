@@ -146,3 +146,12 @@
 (setenv "ROOTSYS" "/Users/wangbq/src/root_v5.34.36.macosx64-10.11-clang70")
 (setq root-executable (concat (getenv "ROOTSYS") "/bin/root"))
 (setq root-executable-args "-l")
+
+(defun yank-replace-rectangle (start end)
+  "Similar like yank-rectangle, but deletes selected rectangle first."
+   (interactive "r")
+   (delete-rectangle start end)
+   (pop-to-mark-command)
+   (yank-rectangle))
+ 
+(global-set-key (kbd "C-x r C-y") 'yank-replace-rectangle)
