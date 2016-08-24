@@ -45,7 +45,7 @@
 (add-to-list 'custom-theme-load-path "~/.emacs.d/themes")
 (add-to-list 'custom-theme-load-path "~/.emacs.d/emacs-color-theme-solarized")
 (add-to-list 'load-path "~/.emacs.d/themes")
-;;(load-theme 'solarized-dark t)
+(load-theme 'solarized-light t)
 
 ;; Uncomment this to increase font size
 (set-face-attribute 'default nil :height 140)
@@ -101,6 +101,9 @@
 
 (setq TeX-view-program-selection '((output-pdf "Skim")))
 
+(load "cdlatex.el")
+(add-hook 'LaTeX-mode-hook 'turn-on-cdlatex)
+
 (server-start)
 
 ;; octave mode
@@ -131,3 +134,10 @@
   (if (and arg (not (= 1 arg))) (message "%d lines copied" arg)))
 (global-set-key "\C-c\C-k" 'copy-line)
 
+;; setup for org mode
+(setq org-default-notes-file "~/work/org/notes.org")
+(setq org-agenda-files  '("~/work/org/"))
+(global-set-key "\C-cl" 'org-store-link)
+(global-set-key "\C-cc" 'org-capture)
+(global-set-key "\C-ca" 'org-agenda)
+(global-set-key "\C-cb" 'org-iswitchb)
