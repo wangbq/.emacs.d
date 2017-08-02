@@ -5,6 +5,8 @@
 (setq default-directory "~/")
 ;;(setq tab-width 4)
 (setq-default tab-width 4)
+(add-hook 'prog-mode-hook 'linum-mode)
+(scroll-bar-mode t)
 
 ;; env PATH
 (defun set-exec-path-from-shell-PATH ()
